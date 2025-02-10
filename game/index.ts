@@ -1,7 +1,17 @@
-import Game from "./src/core/game";
+import { lettaSetup } from "./src/utils/letta";
+import ChatRoom from "./src/core/chatroom";
 
-console.log("Hello, world!");
+async function main() {
+  lettaSetup()
+    .then(() => {
+      const chatRoom = ChatRoom.getInstance();
+      const room = chatRoom.getMessages();
 
-const game = Game.getInstance();
+      console.log("Chat room messages: ", room);
+    })
+    .catch((error) => {
+      console.error(error);
+    });
+}
 
-console.log(game.state);
+main();

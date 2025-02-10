@@ -1,11 +1,15 @@
 {
   "name": "game",
   "version": "1.0.0",
-  "main": "index.ts",
+  "main": "index.js",
   "scripts": {
     "start": "tsx --watch index.ts",
     "build": "tsc",
-    "serve": "node dist/index.js"
+    "serve": "node dist/index.js",
+    "db:generate": "npx drizzle-kit generate",
+    "db:seed": "node --loader esbuild-register ./src/db/seed.ts",
+    "db:migrate": "npx drizzle-kit migrate",
+    "db:studio": "npx drizzle-kit studio"
   },
   "keywords": [],
   "author": "",
@@ -13,7 +17,14 @@
   "description": "",
   "devDependencies": {
     "@types/node": "^22.13.1",
+    "drizzle-kit": "^0.30.4",
     "tsx": "^4.19.2",
     "typescript": "^5.7.3"
+  },
+  "dependencies": {
+    "@letta-ai/letta-client": "^0.1.22",
+    "dotenv": "^16.4.7",
+    "drizzle-orm": "^0.39.2",
+    "postgres": "^3.4.5"
   }
 }

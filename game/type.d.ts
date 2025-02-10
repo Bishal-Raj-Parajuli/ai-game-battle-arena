@@ -3,6 +3,13 @@ type GameState = {
 };
 
 type Player = {
+  id: string;
   name: string;
-  score: number;
+  token: number;
+};
+
+type Message = {
+  playerId: string;
+  playerName: string;
+  message: string;
 };

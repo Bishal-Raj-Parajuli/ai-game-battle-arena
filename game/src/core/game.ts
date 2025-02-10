@@ -13,4 +13,8 @@ export default class Game {
     }
     return this.game;
   }
+
+  addPlayer(player: Player) {
+    this.state.players.push(player);
+  }
 }

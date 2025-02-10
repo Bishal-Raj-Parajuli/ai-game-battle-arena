@@ -9,7 +9,7 @@ type Player = {
 };
 
 type Message = {
-  playerId: string;
   playerName: string;
   message: string;
+  timestamp: Date;
 };

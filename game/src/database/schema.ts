@@ -5,6 +5,7 @@ export const player = pgTable("player", {
   name: text("name").notNull().unique(),
   prompt: text("prompt").notNull(),
   model: text("model").notNull(),
+  lettaId: text("letta_id").unique(),
 });
 
 export const chatHistory = pgTable("chat_history", {

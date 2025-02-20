@@ -15,6 +15,13 @@
       "when": 1739161568247,
       "tag": "0001_wet_sharon_carter",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1740027178288,
+      "tag": "0002_flashy_rumiko_fujikawa",
+      "breakpoints": true
     }
   ]
 }

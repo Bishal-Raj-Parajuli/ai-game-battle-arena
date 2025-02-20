@@ -1,6 +1,9 @@
 import { LettaClient, LettaEnvironment } from "@letta-ai/letta-client";
 import db from "../database/drizzle";
 import { player } from "../database/schema";
+import { eq } from "drizzle-orm";
+import ChatRoom from "../core/chatroom";
+import { MessageCreate } from "@letta-ai/letta-client/api/types";
 
 // connect to a local server
 const client = new LettaClient({
@@ -13,17 +16,15 @@ export async function lettaSetup() {
   const dbAgents = await db.select().from(player);
 
   await Promise.all(
-    dbAgents.map(async (agent) => {
-      console.log(`Processing agent: ${agent.name}`);
-      try {
-        // Find if agent already exists
-        const existingAgent = existingAgents.find(
-          (existing) => existing.name === agent.name
-        );
-
-        if (!existingAgent) {
+    existingAgents.map(async (agents) => {
+      await client.agents.delete(agents.id);
+    })
+  ).then(async () => {
+    await Promise.all(
+      dbAgents.map(async (agent) => {
+        try {
           console.log(`Creating new agent: ${agent.name}`);
-          await client.agents.create({
+          const createdAgent = await client.agents.create({
             contextWindowLimit: 8000,
             name: agent.name,
             embedding: "letta/letta-free",
@@ -42,31 +43,31 @@ export async function lettaSetup() {
             ],
             initialMessageSequence: [],
           });
+          await db
+            .update(player)
+            .set({ lettaId: createdAgent.id })
+            .where(eq(player.name, agent.name));
           console.log(`Successfully created agent: ${agent.name}`);
+        } catch (error) {
+          console.error(`Error processing agent ${agent.name}:`, error);
         }
+      })
+    );
+  });
+}
 
-        if (
-          existingAgent &&
-          (existingAgent.llmConfig.model !== agent.model ||
-            existingAgent.system !== agent.prompt)
-        ) {
-          // Update existing agent
-          console.log(existingAgent.llmConfig.model, existingAgent.system);
-          console.log(agent.model, agent.prompt);
-          console.log(`Updating existing agent: ${agent.name}`);
-          await client.agents.modify(existingAgent.id, {
-            llmConfig: {
-              model: agent.model,
-              modelEndpointType: "google_ai",
-              contextWindow: 8000,
-            },
-            system: agent.prompt,
-          });
-          console.log(`Successfully updated agent: ${agent.name}`);
-        }
-      } catch (error) {
-        console.error(`Error processing agent ${agent.name}:`, error);
-      }
-    })
-  );
+export async function sendLettaMessage(
+  name: string,
+  agentId: string,
+  message: MessageCreate[]
+) {
+  const response = await client.agents.messages.create(agentId, {
+    messages: message,
+  });
+  const chat = await ChatRoom.getInstance();
+  const msg = response.messages.filter(
+    (m) => m.messageType == "reasoning_message"
+  )[0].reasoning;
+  await chat.addMessage(name, msg);
+  return msg;
 }

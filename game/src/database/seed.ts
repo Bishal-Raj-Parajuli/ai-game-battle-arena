@@ -32,6 +32,7 @@ export function seedData() {
           console.log("Successfully updated data for: ", agent.name);
         }
       }
+      return;
     } catch (error) {
       console.error(error);
     }

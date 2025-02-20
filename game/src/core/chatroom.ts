@@ -1,6 +1,8 @@
 import { desc, eq } from "drizzle-orm";
 import db from "../database/drizzle";
 import { chatHistory } from "../database/schema";
+import { MessageCreate } from "@letta-ai/letta-client/api";
+import { Letta } from "@letta-ai/letta-client";
 
 export default class ChatRoom {
   private messages: Message[];
@@ -18,8 +20,13 @@ export default class ChatRoom {
     return this.chatRoom;
   }
 
-  getMessages() {
-    return this.messages.slice(-50);
+  getMessages(): MessageCreate[] {
+    const messages = this.messages.map((m) => ({
+      role: Letta.MessageCreateRole.User,
+      // name: m.playerName,
+      content: m.message,
+    }));
+    return messages;
   }
 
   async addMessage(playerName: string, message: string) {
